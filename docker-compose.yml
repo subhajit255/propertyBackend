@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  # MySQL
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      #      MYSQL_USER: sandbox_user
+      #      MYSQL_PASSWORD: passpass
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - '3306:3306'
+
+  #  database management interface
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - 8888:8080
