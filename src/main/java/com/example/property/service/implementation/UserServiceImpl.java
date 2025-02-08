@@ -64,24 +64,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthResource register(UserRegRequest userRegRequest) throws IOException {
         System.out.println("reg req"+userRegRequest);
-//        UUID roleId = userRegRequest.getRoleId~();
-//        Role role = this.getRoleById(roleId);
         User user = new User();
         user.setName(userRegRequest.getName());
         user.setEmail(userRegRequest.getEmail());
         user.setPhone(userRegRequest.getPhone());
         user.setPassword(encoder.encode(userRegRequest.getPassword()));
         user.setAddress(userRegRequest.getAddress());
-        // Save image to local folder
-//        MultipartFile file = userRegRequest.getImage();
-//        if (file != null && !file.isEmpty()) {
-//            String originalFilename = file.getOriginalFilename();
-//            String newFileName = UUID.randomUUID() + "_" + originalFilename;
-//            Path filePath = Paths.get(uploadDir, newFileName);
-//            file.transferTo(filePath.toFile());
-//
-//            user.setImage(newFileName); // Save image name in database
-//        }
         Set<UUID> roleIds = userRegRequest.getRoleIds();
         List<Role> roles = roleService.getRoleByIds(roleIds);
         user.setRoles(new HashSet<>(roles));
@@ -107,6 +95,12 @@ public class UserServiceImpl implements UserService {
             return new AuthResource(user,token);
         }
         return null;
+    }
+
+    @Override
+    public AuthResource myProfile(UUID id) {
+        User user = this.getUserById(id);
+        return new AuthResource(user,null);
     }
 
     @Override

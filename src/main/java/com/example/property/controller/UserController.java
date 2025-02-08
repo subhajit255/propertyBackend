@@ -84,6 +84,7 @@ public class UserController extends BaseController{
             ));
         }
     }
+
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public ResponseEntity<?> updateProfile(@RequestAttribute UUID userId,
                                            @RequestPart(value = "name", required = false) String name,
@@ -110,6 +111,24 @@ public class UserController extends BaseController{
                     "message","something wrong happend"
             ));
         }
+    }
+
+    @GetMapping("my-profile")
+    public ResponseEntity<?> myProfile(@RequestAttribute UUID userId){
+        try{
+            AuthResource authResource = userService.myProfile(userId);
+            return ResponseEntity.ok(Map.of(
+                    "status",true,
+                    "message","data found",
+                    "data",authResource
+            ));
+        }catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", false,
+                    "message", "something went wrong"
+            ));
+        }
+
     }
 
 }

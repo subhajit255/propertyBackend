@@ -16,5 +16,6 @@ public interface UserService {
     User getUserById(UUID id);
     AuthResource register(UserRegRequest userRegRequest) throws IOException;
     AuthResource verify(UserLoginRequest userLoginRequest);
+    AuthResource myProfile(UUID id);
     User updateProfile(UUID id, UpdateUserRequest updateUserRequest);
 }

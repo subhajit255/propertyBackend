@@ -1,6 +1,7 @@
 package com.example.property.model;
 
-
+import org.springframework.beans.factory.annotation.Value;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,6 +49,18 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Value("${app.image.base-url}")
+    @JsonIgnore  // Prevent this value from being serialized in JSON responses
+    private String imageBaseUrl;
+
+    @Value("${app.image.default}")
+    @JsonIgnore
+    private String defaultImage;
+
+    // ✅ Dynamic Getter for Image URL
+    public String getImageUrl() {
+        return (image != null && !image.isEmpty()) ? imageBaseUrl : "";
+    }
 
     // created at when data added
     @PrePersist
