@@ -21,6 +21,7 @@ public class PropertyKindController extends BaseController{
 
     @GetMapping("/")
     public ResponseEntity<?> getAll(){
+
         try{
             List<PropertyKind> allPropertyKinds =  propertyKindService.getAllPropertyKinds();
             return ResponseEntity.ok(Map.of(

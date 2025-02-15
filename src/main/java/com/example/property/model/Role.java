@@ -38,6 +38,9 @@ public class Role {
                     .replaceAll("\\s+", "-")       // Replace spaces with hyphens
                     .trim();
         }
+        if (this.id == null) { // Only set if id is null
+            this.id = UUID.randomUUID();
+        }
         this.createdAt = LocalDateTime.now();
     }
 

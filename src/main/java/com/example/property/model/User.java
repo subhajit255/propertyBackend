@@ -1,5 +1,6 @@
 package com.example.property.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -8,9 +9,7 @@ import lombok.*;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +35,7 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String address;
     private String password;
+    private boolean status = true;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -44,6 +44,10 @@ public class User {
     )
     @JsonManagedReference  // prevent infinite recursion
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<Property> properties = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -57,7 +61,7 @@ public class User {
     @JsonIgnore
     private String defaultImage;
 
-    // ✅ Dynamic Getter for Image URL
+    // Dynamic Getter for Image URL
     public String getImageUrl() {
         return (image != null && !image.isEmpty()) ? imageBaseUrl : "";
     }
@@ -65,6 +69,9 @@ public class User {
     // created at when data added
     @PrePersist
     private void onCreate(){
+        if (this.id == null) { // Only set if id is null
+            this.id = UUID.randomUUID();
+        }
         this.createdAt = LocalDateTime.now();
     }
     // on update the time

@@ -1,0 +1,7 @@
+URL for published documentation
+import this url in your postman to get the full collection
+
+
+
+
+https://documenter.getpostman.com/view/24552726/2sAYXEEdQS

@@ -1,8 +1,6 @@
 package com.example.property.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,22 +10,21 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "property_kinds")
+@Table(name = "property_types")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class PropertyKind {
-
+public class PropertyType {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @NotBlank(message = "name cannot be empty")
-    @Size(min = 2, max = 50, message = "name length must be in between 2 to 50 character")
     private String name;
     private String image;
+    private boolean status = true;
+    @Column(nullable = false)
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateAt;
 
 
     @PrePersist
@@ -40,6 +37,7 @@ public class PropertyKind {
 
     @PreUpdate
     private void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
+        this.updateAt = LocalDateTime.now();
     }
+
 }

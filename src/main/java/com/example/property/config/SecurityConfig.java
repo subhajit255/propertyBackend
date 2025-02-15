@@ -49,14 +49,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*");  // Allow all origins, adjust as needed for production
-        configuration.addAllowedMethod("*");  // Allow all methods (GET, POST, etc.)
+        configuration.addAllowedOrigin("http://localhost:5173");  // Specify the frontend URL
+        configuration.addAllowedMethod("*");  // Allow all HTTP methods
         configuration.addAllowedHeader("*");  // Allow all headers
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true);  // Allow credentials (cookies, authorization headers)
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Apply CORS policy to all endpoints
+        source.registerCorsConfiguration("/**", configuration);  // Apply to all endpoints
         return source;
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
