@@ -12,6 +12,7 @@ import com.example.property.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,11 @@ public class PropertyServiceImpl implements PropertyService {
     private PropertyTypeService propertyTypeService;
     @Autowired
     private UserService userService;
+
+    @Override
+    public List<Property>  getPropertyByUser(UUID userId) {
+        return propertyRepository.findPropertyByUser(userId);
+    }
 
     @Override
     public Property add(UUID userId, PropertyRequest propertyRequest) {
@@ -62,11 +68,46 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public Property update(UUID propertyId, PropertyRequest propertyRequest) {
-        return null;
+        // Check if the property exists
+        Property existingProperty = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new RuntimeException("Property not found with ID: " + propertyId));
+
+        // Get property kind and type details
+        PropertyKind propertyKind = propertyKindService.getById(propertyRequest.getPropertyKindId());
+        PropertyType propertyType = propertyTypeService.getById(propertyRequest.getPropertyTypeId());
+
+        // Update the existing property object
+        existingProperty.setPropertyKind(propertyKind);
+        existingProperty.setPropertyType(propertyType);
+        existingProperty.setName(propertyRequest.getName());
+        existingProperty.setDescription(propertyRequest.getDescription());
+        existingProperty.setLatitude(propertyRequest.getLatitude());
+        existingProperty.setLongitude(propertyRequest.getLongitude());
+        existingProperty.setStreetAddress1(propertyRequest.getStreetAddress1());
+        existingProperty.setStreetAddress2(propertyRequest.getStreetAddress2());
+        existingProperty.setCity(propertyRequest.getCity());
+        existingProperty.setState(this.getState(propertyRequest.getStateId()));
+        existingProperty.setCountry(this.getCountry(propertyRequest.getCountryId()));
+        existingProperty.setZipCode(propertyRequest.getZipCode());
+        existingProperty.setBankName(propertyRequest.getBankName());
+        existingProperty.setBranchName(propertyRequest.getBranchName());
+        existingProperty.setAccNo(propertyRequest.getAccNo());
+        existingProperty.setRoutingNo(propertyRequest.getRoutingNo());
+
+        // Save and return the updated property
+        return propertyRepository.save(existingProperty);
     }
+
 
     @Override
     public boolean delete(UUID propertyId) {
+        // Check if the property exists
+        Optional<Property> isPropertyExist = propertyRepository.findById(propertyId);
+        if(isPropertyExist.isPresent()){
+            Property property = isPropertyExist.get();
+            propertyRepository.delete(property);
+            return true;
+        }
         return false;
     }
 

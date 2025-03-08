@@ -40,7 +40,8 @@ public class PropertyTypeImpl implements PropertyTypeService {
     public PropertyType update(PropertyType propertyType, UUID id) {
         PropertyType isPropertyType = this.getById(id);
         if(isPropertyType != null){
-            return propertyTypeRepository.save(propertyType);
+            isPropertyType.setName(propertyType.getName());
+            return propertyTypeRepository.save(isPropertyType);
         }
         return null;
     }

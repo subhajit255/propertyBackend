@@ -7,9 +7,12 @@ import com.example.property.model.User;
 import com.example.property.request.PropertyRequest;
 import org.springframework.security.core.parameters.P;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PropertyService {
+
+    public List<Property> getPropertyByUser(UUID userId);
 
     public Property add(UUID userId, PropertyRequest propertyRequest);
 

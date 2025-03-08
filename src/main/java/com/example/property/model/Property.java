@@ -1,10 +1,13 @@
 package com.example.property.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -18,10 +21,10 @@ public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})  // Avoid deleting the parent when deleting child
     @JoinColumn(name = "property_kind_id", referencedColumnName = "id")
     private PropertyKind propertyKind;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})  // Avoid deleting the parent when deleting child
     @JoinColumn(name = "property_type_id", referencedColumnName = "id")
     private PropertyType propertyType;
     private String name;
@@ -50,10 +53,15 @@ public class Property {
     private String accNo;
     @Column(name = "routing_no")
     private String routingNo;
+
     @ManyToOne
     @JoinColumn(name = "created_by")
     @JsonManagedReference  // prevent infinite recursion
     private User user;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Building> buildings = new ArrayList<>();
     private boolean status = true;
     @Column(nullable = false)
     private LocalDateTime createdAt;

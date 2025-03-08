@@ -1,11 +1,16 @@
 package com.example.property.controller;
 
 import com.example.property.model.User;
+import com.example.property.request.BankAccountDetails;
 import com.example.property.request.UpdateUserRequest;
 import com.example.property.request.UserLoginRequest;
 import com.example.property.request.UserRegRequest;
 import com.example.property.resource.AuthResource;
+import com.example.property.resource.BankDetailResource;
 import com.example.property.service.UserService;
+import com.example.property.service.implementation.StripeService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +28,8 @@ import java.util.UUID;
 public class UserController extends BaseController{
     @Autowired
     private UserService userService;
+    @Autowired
+    private StripeService stripeService;
 
     @PostMapping("/registration")
     public ResponseEntity<?> registration(@Valid @RequestBody UserRegRequest userRegRequest, BindingResult result) {
@@ -129,6 +136,21 @@ public class UserController extends BaseController{
             ));
         }
 
+    }
+    @PostMapping("/add-bank-account")
+    public ResponseEntity<?> addBankAccount(@RequestAttribute UUID userId, @RequestBody BankAccountDetails bankAccountDetails){
+        try{
+            boolean isBankAccountAdded = userService.addBankDetails(userId,bankAccountDetails);
+            return ResponseEntity.ok(Map.of(
+                    "status", isBankAccountAdded ? true : false,
+                    "message", isBankAccountAdded ? "bank details added" : "bank details not added"
+            ));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", false,
+                    "message", "Somethin went wrong"
+            ));
+        }
     }
 
 }

@@ -40,7 +40,8 @@ public class PropertyKindImpl implements PropertyKindService {
     public PropertyKind update(UUID id, PropertyKind propertyKind) {
         PropertyKind isExistPropertyKind = this.getById(id);
         if(isExistPropertyKind != null){
-            return propertyKindRepository.save(propertyKind);
+            isExistPropertyKind.setName(propertyKind.getName());
+            return propertyKindRepository.save(isExistPropertyKind);
         }
         return null;
     }

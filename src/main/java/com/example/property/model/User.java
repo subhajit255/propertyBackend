@@ -36,6 +36,11 @@ public class User {
     private String address;
     private String password;
     private boolean status = true;
+    @Column(name = "customer_id")
+    private String customerId;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonBackReference
+    private BankAccount bankAccount;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

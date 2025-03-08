@@ -88,6 +88,8 @@ public class PropertyKindController extends BaseController{
 
     @PostMapping("/update/{id}")
     public ResponseEntity<?> update(@Valid @PathVariable UUID id, @RequestBody PropertyKind propertyKind, BindingResult result){
+        System.out.println("id -----> "+id);
+        System.out.println("propertykind"+propertyKind);
         if(result.hasErrors()){
             return ResponseEntity.badRequest().body(Map.of(
                     "status", false,
@@ -110,6 +112,7 @@ public class PropertyKindController extends BaseController{
                     "message", "No data found for the provided ID"
             ));
         }catch(Exception e){
+            System.out.println("error ----->"+e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                     "status",false,
                     "message","something went wrong"

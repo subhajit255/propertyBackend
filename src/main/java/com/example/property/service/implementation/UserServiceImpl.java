@@ -2,15 +2,22 @@ package com.example.property.service.implementation;
 
 import com.example.property.model.Role;
 import com.example.property.model.User;
+import com.example.property.model.BankAccount;
+import com.example.property.repository.BankAccountRepository;
 import com.example.property.repository.RoleRepository;
 import com.example.property.repository.UserRepository;
+import com.example.property.request.BankAccountDetails;
 import com.example.property.request.UpdateUserRequest;
 import com.example.property.request.UserLoginRequest;
 import com.example.property.request.UserRegRequest;
 import com.example.property.resource.AuthResource;
+import com.example.property.resource.BankDetailResource;
 import com.example.property.service.FileUploadService;
 import com.example.property.service.RoleService;
 import com.example.property.service.UserService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,6 +49,10 @@ public class UserServiceImpl implements UserService {
     private RoleService roleService;
     @Autowired
     private FileUploadService fileUploadService;
+    @Autowired
+    private StripeService stripeService;
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
     @Value("${file.upload-dir}")
     private String path;
 
@@ -62,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AuthResource register(UserRegRequest userRegRequest) throws IOException {
+    public AuthResource register(UserRegRequest userRegRequest) throws IOException, StripeException {
         System.out.println("reg req"+userRegRequest);
         User user = new User();
         user.setName(userRegRequest.getName());
@@ -73,6 +84,8 @@ public class UserServiceImpl implements UserService {
         Set<UUID> roleIds = userRegRequest.getRoleIds();
         List<Role> roles = roleService.getRoleByIds(roleIds);
         user.setRoles(new HashSet<>(roles));
+        String customerId = this.getCustomerId(userRegRequest.getName(),userRegRequest.getEmail());
+        user.setCustomerId(customerId);
         // register the user
         User isRegistered = userRepository.save(user);
         if(isRegistered.getId() != null){
@@ -123,5 +136,37 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userRepository.save(isUser);
+    }
+
+    @Override
+    public boolean addBankDetails(UUID userId, BankAccountDetails bankAccountDetails) throws StripeException {
+        Optional<User> isUser = userRepository.findById(userId);
+        User user = isUser.get();
+        Token token = stripeService.createToken(bankAccountDetails);
+        System.out.println("token ------->"+token);
+        if(token != null) {
+            com.stripe.model.BankAccount bankAccount = token.getBankAccount();
+            BankAccount account = new BankAccount();
+            account.setBankAccountId(bankAccount.getId());
+            account.setBankName(bankAccount.getBankName());
+            account.setCountry(bankAccount.getCountry());
+            account.setCurrency(bankAccount.getCurrency());
+            account.setAccountHolderName(bankAccountDetails.getAccountHolderName());
+            account.setCustomerId(user.getCustomerId());
+            account.setFingerPrint(bankAccount.getFingerprint());
+            account.setLast4(bankAccount.getLast4());
+            account.setRoutingNo(bankAccount.getRoutingNumber());
+            account.setBankTokenId(token.getId());
+            account.setUser(user); // Associate user with the bank account
+            bankAccountRepository.save(account);
+            return true;
+        }
+        return false;
+    }
+
+    public String getCustomerId(String name, String email) throws StripeException {
+        Customer customer = stripeService.createCustomer(name, email);
+        String customerId = customer.getId();
+        return customerId;
     }
 }
